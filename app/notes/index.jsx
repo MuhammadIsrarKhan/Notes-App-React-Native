@@ -40,7 +40,6 @@ const NotesScreen = () => {
     setNewNote("");
     setModalVisible(false);
   };
-
   const deleteNote = async (noteId) => {
     Alert.alert("Delete Note", "Are you sure you want to delete this note?", [
       { text: "Cancel", style: "cancel" },
@@ -62,9 +61,27 @@ const NotesScreen = () => {
       },
     ]);
   };
+  const editNote = async (noteId, newText) => {
+    if (newText.trim() === "") {
+      Alert.alert("Error", "Note text cannot be empty.");
+      return;
+    }
+    setLoading(true);
+    const response = await noteService.updateNote(noteId, { text: newText });
+    setLoading(false);
+    if (response.error) {
+      Alert.alert("Error", response.error);
+    } else {
+      setNotes((prevNotes) =>
+        prevNotes.map((note) =>
+          note.$id === noteId ? { ...note, text: newText } : note
+        )
+      );
+    }
+  };
   return (
     <View style={styles.container}>
-      <NoteList notes={notes} onDelete={deleteNote} />
+      <NoteList notes={notes} onDelete={deleteNote} onEdit={editNote} />
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => setModalVisible(true)}

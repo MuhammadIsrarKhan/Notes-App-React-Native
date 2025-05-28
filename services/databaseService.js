@@ -24,6 +24,18 @@ const databaseService = {
       };
     }
   },
+  async updateDocument(dbId, colId, docId, data) {
+    try {
+      const response = await database.updateDocument(dbId, colId, docId, data);
+      return response;
+    } catch (error) {
+      console.error("Error updating document:", error.message);
+      return {
+        error:
+          error.message || "An error occurred while updating the document.",
+      };
+    }
+  },
   async deleteDocument(dbId, colId, docId) {
     try {
       await database.deleteDocument(dbId, colId, docId);
