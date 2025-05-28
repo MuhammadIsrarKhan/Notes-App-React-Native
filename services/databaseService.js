@@ -19,11 +19,23 @@ const databaseService = {
     } catch (error) {
       console.error("Error creating document:", error.message);
       return {
-        error: error.message || "An error occurred while creating the document.",
+        error:
+          error.message || "An error occurred while creating the document.",
       };
     }
-  }
-    
+  },
+  async deleteDocument(dbId, colId, docId) {
+    try {
+      await database.deleteDocument(dbId, colId, docId);
+      return { success: true };
+    } catch (error) {
+      console.error("Error deleting document:", error.message);
+      return {
+        error:
+          error.message || "An error occurred while deleting the document.",
+      };
+    }
+  },
 };
 
 export default databaseService;

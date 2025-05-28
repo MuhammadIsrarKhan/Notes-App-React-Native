@@ -5,13 +5,15 @@ import NoteList from "../../components/NoteList";
 import noteService from "../../services/noteService";
 
 const NotesScreen = () => {
-  const [newNote, setNewNote] = useState("");  const [notes, setNotes] = useState([]);
+  const [newNote, setNewNote] = useState("");
+  const [notes, setNotes] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchNotes();
-  }, []);  const fetchNotes = async () => {
+  }, []);
+  const fetchNotes = async () => {
     setLoading(true);
     const response = await noteService.getNotes();
     setLoading(false);
@@ -38,15 +40,38 @@ const NotesScreen = () => {
     setNewNote("");
     setModalVisible(false);
   };
+
+  const deleteNote = async (noteId) => {
+    Alert.alert("Delete Note", "Are you sure you want to delete this note?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          setLoading(true);
+          const response = await noteService.deleteNote(noteId);
+          setLoading(false);
+          if (response.error) {
+            Alert.alert("Error", response.error);
+          } else {
+            setNotes((prevNotes) =>
+              prevNotes.filter((note) => note.$id !== noteId)
+            );
+          }
+        },
+      },
+    ]);
+  };
   return (
     <View style={styles.container}>
-      <NoteList notes={notes} />
+      <NoteList notes={notes} onDelete={deleteNote} />
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => setModalVisible(true)}
       >
         <Text style={styles.addButtonText}>+ Add Note</Text>
-      </TouchableOpacity>      <AddNoteModal
+      </TouchableOpacity>{" "}
+      <AddNoteModal
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
         newNote={newNote}

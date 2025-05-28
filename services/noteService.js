@@ -41,6 +41,22 @@ const noteService = {
       data: response,
     };
   },
+  async deleteNote(noteId) {
+    if (!noteId) {
+      return {
+        error: "Note ID is required to delete a note.",
+      };
+    }
+    const response = await databaseService.deleteDocument(dbId, colId, noteId);
+    if (response.error) {
+      return {
+        error: response.error,
+      };
+    }
+    return {
+      success: true,
+    };
+  },
 };
 
 export default noteService;
