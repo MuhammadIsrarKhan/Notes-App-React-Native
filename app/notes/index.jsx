@@ -1,3 +1,5 @@
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import AddNoteModal from "../../components/AddNoteModal";
@@ -5,17 +7,29 @@ import NoteList from "../../components/NoteList";
 import noteService from "../../services/noteService";
 
 const NotesScreen = () => {
+  const router = useRouter();
+  const { user, loading: AuthLoading } = useAuth();
+
   const [newNote, setNewNote] = useState("");
   const [notes, setNotes] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchNotes();
-  }, []);
+    if (!AuthLoading && !user) {
+      router.replace("/auth");
+    }
+  }, [user, AuthLoading]);
+
+  useEffect(() => {
+    if (user) {
+      fetchNotes();
+    }
+  }, [user]);
+
   const fetchNotes = async () => {
     setLoading(true);
-    const response = await noteService.getNotes();
+    const response = await noteService.getNotes(user?.$id);
     setLoading(false);
     if (response.error) {
       Alert.alert("Error", response.error);
@@ -29,7 +43,10 @@ const NotesScreen = () => {
       return;
     }
     setLoading(true);
-    const response = await noteService.addNote({ text: newNote });
+    const response = await noteService.addNote({
+      userId: user?.$id,
+      text: newNote,
+    });
     setLoading(false);
     if (response.error) {
       Alert.alert("Error", response.error);
@@ -81,7 +98,11 @@ const NotesScreen = () => {
   };
   return (
     <View style={styles.container}>
-      <NoteList notes={notes} onDelete={deleteNote} onEdit={editNote} />
+      {notes.length === 0 ? (
+        <Text style={styles.noNotesText}>You have no notes</Text>
+      ) : (
+        <NoteList notes={notes} onDelete={deleteNote} onEdit={editNote} />
+      )}
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => setModalVisible(true)}

@@ -1,6 +1,6 @@
 import { Platform } from "react-native";
 
-const { Client, Databases } = require("react-native-appwrite");
+const { Client, Databases, Account } = require("react-native-appwrite");
 
 const config = {
   endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT,
@@ -14,7 +14,7 @@ const config = {
 const client = new Client();
 client.setEndpoint(config.endpoint).setProject(config.projectId);
 
-switch(Platform.OS) {
+switch (Platform.OS) {
   case "ios":
     client.setPlatform(process.env.EXPO_PUBLIC_APPWRITE_BUNDLE_ID);
     break;
@@ -25,4 +25,7 @@ switch(Platform.OS) {
 
 const database = new Databases(client);
 
-export { database, config, client };
+const account = new Account(client);
+
+export { account, client, config, database };
+
